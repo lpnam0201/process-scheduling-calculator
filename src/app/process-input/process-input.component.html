@@ -1,0 +1,48 @@
+<div class="row">
+    <div class="col-3">
+        <div *ngFor="let algorithm of algorithms">
+            <input type="radio" name="algorithm" [value]="algorithm" [(ngModel)]="selectedAlgorithm"> {{algorithm}}
+        </div>
+        <div *ngIf="isRoundRobin">
+            <label>Quantum</label>
+            <input type="number" [(ngModel)]="quantum">
+        </div>
+    </div>
+    <div class="col-9">
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th class="delete-button-cell">
+                        <button (click)="onAddProcessItem()">+</button>
+                    </th>
+                    <th class="process-name-cell">Process</th>
+                    <th class="process-arrival-cell">Arrival time</th>
+                    <th class="process-burst-cell">Burst time</th>
+                    <th class="process-priority-cell">Priority</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let processItem of processItems">
+                    <td>
+                        <button class="delete-button-cell" (click)="onDeleteProcessItem(processItem)">X</button>
+                    </td>
+                    <td>
+                        <input class="process-name-cell" type="text" [(ngModel)]="processItem.Name" disabled>
+                    </td>
+                    <td>
+                        <input class="process-arrival-cell" type="number" [(ngModel)]="processItem.ArrivalTime">
+                    </td>
+                    <td>
+                        <input class="process-burst-cell" type="number" [(ngModel)]="processItem.BurstTime">
+                    </td>
+                    <td>
+                        <input class="process-priority-cell" type="number" [(ngModel)]="processItem.Priority" [disabled]="!isPriorityUsed">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <button (click)="onClickStart()">Start</button>
+    </div>
+</div>

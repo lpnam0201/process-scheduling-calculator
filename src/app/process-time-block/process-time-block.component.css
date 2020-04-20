@@ -1,0 +1,19 @@
+.end-time-text {
+    float: right;
+}
+
+.start-time-text {
+    float: left;
+}
+
+.process-name-text {
+    margin-right: 1px;
+    text-align: center;
+    border-bottom: 1px solid black;
+}
+
+.process-time-block {
+    border: 1px solid black;
+    margin-right: 1px;
+    display: inline-block;
+}

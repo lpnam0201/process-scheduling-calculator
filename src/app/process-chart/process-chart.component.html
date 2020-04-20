@@ -1,0 +1,12 @@
+<div class="scroll-container">
+    <div>
+        <label>Pixel per second</label>
+        <input type="number" [(ngModel)]="pixelPerSecond">
+    </div>
+    <app-process-time-block 
+            *ngFor="let processTimeBlock of processTimeBlocks" 
+            [processTimeBlock]="processTimeBlock"
+            [pixelPerSecond]="pixelPerSecond">
+    </app-process-time-block>
+</div>
+

@@ -1,0 +1,26 @@
+<table class="table-bordered" *ngIf="processSchedulingItems.length !== 0">
+    <thead>
+        <tr>
+            <th class="process-name-cell">Process</th>
+            <th class="process-waiting-cell">Waiting time</th>
+            <th class="process-response-cell">Response time</th>
+            <th class="process-turnaround-cell">Turnaround time</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let processSchedulingItem of processSchedulingItems">
+            <td>
+                <label class="process-name-cell">{{processSchedulingItem.Name}}</label>   
+            </td>
+            <td>
+                <label class="process-waiting-cell">{{processSchedulingItem.WaitingTime}}</label>  
+            </td>
+            <td>
+                <label class="process-response-cell">{{processSchedulingItem.ResponseTime}}</label>  
+            </td>
+            <td>
+                <label class="process-turnaround-cell">{{processSchedulingItem.TurnaroundTime}}</label>  
+            </td>
+        </tr>
+    </tbody>
+</table>

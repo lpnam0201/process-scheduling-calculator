@@ -1,0 +1,12 @@
+<div [style.width.px]="processTimeBlock.Duration * pixelPerSecond" class="process-time-block">
+    <div class="process-name-text">{{processTimeBlock.Name}}</div>
+    <div>
+        <div class="start-time-text" *ngIf="processTimeBlock.IsFirstBlock">
+            {{processTimeBlock.StartTime}}
+        </div>
+        <div class="end-time-text">
+            {{processTimeBlock.EndTime}}
+        </div>
+    </div>
+</div>
+

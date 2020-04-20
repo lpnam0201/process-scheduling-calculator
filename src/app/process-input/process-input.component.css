@@ -1,0 +1,19 @@
+.delete-button-cell {
+    width: 25px;
+}
+
+.process-name-cell {
+    width: 80px;
+}
+
+.process-arrival-cell {
+    width: 130px;
+}
+
+.process-burst-cell {
+    width: 130px;
+}
+
+.process-priority-cell {
+    width: 130px;
+}
