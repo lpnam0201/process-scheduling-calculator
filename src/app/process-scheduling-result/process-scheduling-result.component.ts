@@ -11,6 +11,15 @@ import { Subscription } from 'rxjs';
 export class ProcessSchedulingResultComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public processSchedulingItems: ProcessSchedulingItem[] = [];
+  public get averageWaitingTime(): string {
+    return this.findAverage(x => x.WaitingTime);
+  }
+  public get averageResponseTime(): string {
+    return this.findAverage(x => x.ResponseTime);
+  }
+  public get averageTurnaroundTime(): string {
+    return this.findAverage(x => x.TurnaroundTime);
+  }
 
   constructor(private processSchedulingProviderService: ProcessSchedulingProviderService) { }
   ngOnDestroy(): void {
@@ -25,4 +34,12 @@ export class ProcessSchedulingResultComponent implements OnInit, OnDestroy {
     this.subscriptions.push(subscription);
   }
 
+  private findAverage(propertySelctor: (value: ProcessSchedulingItem) => number): string {
+    let average = this.processSchedulingItems
+      .map(propertySelctor)
+      .reduce((previous, current) => previous + current)
+      / this.processSchedulingItems.length;
+
+    return average.toFixed(2);
+  }
 }

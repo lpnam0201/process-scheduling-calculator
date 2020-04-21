@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TimeBlockProviderService } from '../services/time-block-provider-service';
 import { ProcessTimeBlock } from '../models/process-time-block';
 import { Subscription } from 'rxjs';
+import { min } from 'lodash';
 
 @Component({
   selector: 'app-process-chart',

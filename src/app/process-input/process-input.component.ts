@@ -86,6 +86,7 @@ export class ProcessInputComponent implements OnInit {
         timeBlocks = this.processCalculationService.calculateByPS(this.processItems);
         break;
       case 'RR':
+        timeBlocks = this.processCalculationService.calculateByRR(this.processItems, this.quantum);
         break;
       default:
         break;

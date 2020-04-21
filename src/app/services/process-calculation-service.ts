@@ -14,8 +14,14 @@ export class ProcessCalculationService {
         let startTime = 0;
         let endTime = 0;
         for (const process of copiedProcesses) {
+            if (process.ArrivalTime > endTime) {
+                startTime = endTime;
+                endTime = process.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, process.ArrivalTime));
+            }
+
             startTime = endTime;
-            endTime = endTime + process.BurstTime;
+            endTime = startTime + process.BurstTime;
             timeBlocks.push(new ProcessTimeBlock(process.Name, startTime, endTime));
         }
 
@@ -30,13 +36,22 @@ export class ProcessCalculationService {
         let endTime = 0;
         while (copiedProcesses.length !== 0) {
             let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            if (availableProcesses.length === 0)
+            {
+                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+                startTime = endTime;
+                endTime = nextProcess.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            }
+
             let minBurstTime = min(availableProcesses.map(x => x.BurstTime));
 
             // Take the first process with min burst time
             let process = copiedProcesses.find(x => x.BurstTime === minBurstTime);
 
             startTime = endTime;
-            endTime = endTime + process.BurstTime;
+            endTime = startTime + process.BurstTime;
 
             timeBlocks.push(new ProcessTimeBlock(process.Name, startTime, endTime));
             this.removeProcessItemFromCollection(process, copiedProcesses);
@@ -54,11 +69,19 @@ export class ProcessCalculationService {
         let currentProcess: ProcessItem = null;
         while (copiedProcesses.length !== 0) {
             let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            if (availableProcesses.length === 0)
+            {
+                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+                startTime = endTime;
+                endTime = nextProcess.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            }
+
             let minRemainingTime = min(availableProcesses.map(x => x.BurstTime));
 
-            let minRemainingTimeProcess = copiedProcesses.find(x => x.BurstTime === minRemainingTime);
+            let minRemainingTimeProcess = availableProcesses.find(x => x.BurstTime === minRemainingTime);
             if (currentProcess === null) {
-                // First run
                 currentProcess = minRemainingTimeProcess;
             } else if (currentProcess === minRemainingTimeProcess) {
                 // Not pre-empted yet
@@ -72,15 +95,10 @@ export class ProcessCalculationService {
             }
 
             if (currentProcess.BurstTime === 0) {
-                this.removeProcessItemFromCollection(currentProcess, copiedProcesses);
-            }
-
-            if (copiedProcesses.length === 0) {
-                // The last process has finished running
-                // But it was not captured by timeBlocks.push above
-                // Because it was the only process left so currentProcess === minRemainingTimeProcess
-                // So its run will be captured here
                 timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+                this.removeProcessItemFromCollection(currentProcess, copiedProcesses);
+                currentProcess = null;
+                startTime = endTime;
             }
         }
 
@@ -95,6 +113,15 @@ export class ProcessCalculationService {
         let endTime = 0;
         while (copiedProcesses.length !== 0) {
             let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            if (availableProcesses.length === 0)
+            {
+                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+                startTime = endTime;
+                endTime = nextProcess.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            }
+
             // 1 highest - n lowest
             let highestPriority = min(availableProcesses.map(x => x.Priority));
 
@@ -110,8 +137,65 @@ export class ProcessCalculationService {
         return timeBlocks;
     }
 
-    public calculateByRR(processItems: ProcessItem[]): ProcessTimeBlock[] {
-        return [];
+    public calculateByRR(processes: ProcessItem[], quantum: number): ProcessTimeBlock[] {
+        const timeBlocks: ProcessTimeBlock[] = [];
+        const copiedProcesses = cloneDeep(processes);
+        const processQueue = [];
+
+        let firstProcess = sortBy(copiedProcesses, x => x.ArrivalTime)[0];
+        processQueue.push(firstProcess);
+        this.removeProcessItemFromCollection(firstProcess, copiedProcesses);
+
+        let startTime = 0;
+        let endTime = 0;
+        let currentProcess: ProcessItem = firstProcess;
+        while (processQueue.length !== 0)
+        {
+            // At the moment when a new process comes but the current process runs out of time and not yet finishes
+            // This new process will be enqueued before putting current process to the back of the queue
+            let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            if (availableProcesses.length === 0)
+            {
+                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+                startTime = endTime;
+                endTime = nextProcess.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            }
+
+            currentProcess.BurstTime -= 1;
+            endTime += 1;
+
+            for (let process of availableProcesses) {
+                processQueue.push(process);
+                this.removeProcessItemFromCollection(process, copiedProcesses);
+            }
+
+            if (currentProcess.BurstTime === 0) {
+                timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+                startTime = endTime;
+                processQueue.shift();
+
+                if (processQueue.length > 0) {
+                    currentProcess = processQueue[0];
+                }
+            } else {
+                let duration = endTime - startTime;
+                if (duration === quantum) {
+                    timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+                    startTime = endTime;
+
+                    
+
+                    // Move to the back of queue
+                    let outOfTimeProcess = processQueue.shift();
+                    processQueue.push(outOfTimeProcess);
+                    currentProcess = processQueue[0];
+                }
+            }
+        }
+
+        return timeBlocks;
     }
 
     public calculateSchedulingResult(timeBlocks: ProcessTimeBlock[], processes: ProcessItem[]): ProcessSchedulingItem[] {
@@ -163,5 +247,10 @@ export class ProcessCalculationService {
         }
 
         return availableProcesses;
+    }
+
+    private findProcessWithMinArrivalTime(processes: ProcessItem[]): ProcessItem {
+        let minArrivalTime = min(processes.map(x => x.ArrivalTime));
+        return processes.find(x => x.ArrivalTime === minArrivalTime);
     }
 }

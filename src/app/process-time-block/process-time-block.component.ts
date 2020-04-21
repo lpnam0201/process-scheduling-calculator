@@ -9,6 +9,9 @@ import { ProcessTimeBlock } from '../models/process-time-block';
 export class ProcessTimeBlockComponent implements OnInit {
   @Input() processTimeBlock: ProcessTimeBlock;
   @Input() pixelPerSecond: number;
+  get width(): number {
+    return this.processTimeBlock.Duration  * this.pixelPerSecond;
+  }
 
   constructor() { }
 
