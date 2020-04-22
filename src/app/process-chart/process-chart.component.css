@@ -2,3 +2,12 @@
     overflow-x: auto;
     white-space: nowrap;
 }
+
+table {
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+
+td, th {
+    border: 1px solid black;
+}

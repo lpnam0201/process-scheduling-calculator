@@ -20,9 +20,6 @@ export class ProcessInputComponent implements OnInit {
       this.isPriorityUsed = true;
     } else {
       this.isPriorityUsed = false;
-      this.processItems.forEach(x => {
-        x.Priority = null;
-      });
     }
 
     if (value === 'RR') {

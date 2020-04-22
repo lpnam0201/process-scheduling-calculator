@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-3">
         <div *ngFor="let algorithm of algorithms">
-            <input type="radio" name="algorithm" [value]="algorithm" [(ngModel)]="selectedAlgorithm"> {{algorithm}}
+            <input type="radio" name="algorithm" [value]="algorithm" [(ngModel)]="selectedAlgorithm" [disabled]="algorithm === 'RR'"> {{algorithm}}
         </div>
         <div *ngIf="isRoundRobin">
             <label>Quantum</label>

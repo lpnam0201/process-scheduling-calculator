@@ -48,7 +48,7 @@ export class ProcessCalculationService {
             let minBurstTime = min(availableProcesses.map(x => x.BurstTime));
 
             // Take the first process with min burst time
-            let process = copiedProcesses.find(x => x.BurstTime === minBurstTime);
+            let process = availableProcesses.find(x => x.BurstTime === minBurstTime);
 
             startTime = endTime;
             endTime = startTime + process.BurstTime;
@@ -139,61 +139,61 @@ export class ProcessCalculationService {
 
     public calculateByRR(processes: ProcessItem[], quantum: number): ProcessTimeBlock[] {
         const timeBlocks: ProcessTimeBlock[] = [];
-        const copiedProcesses = cloneDeep(processes);
-        const processQueue = [];
+        // const copiedProcesses = cloneDeep(processes);
+        // const processQueue = [];
 
-        let firstProcess = sortBy(copiedProcesses, x => x.ArrivalTime)[0];
-        processQueue.push(firstProcess);
-        this.removeProcessItemFromCollection(firstProcess, copiedProcesses);
+        // let firstProcess = sortBy(copiedProcesses, x => x.ArrivalTime)[0];
+        // processQueue.push(firstProcess);
+        // this.removeProcessItemFromCollection(firstProcess, copiedProcesses);
 
-        let startTime = 0;
-        let endTime = 0;
-        let currentProcess: ProcessItem = firstProcess;
-        while (processQueue.length !== 0)
-        {
-            // At the moment when a new process comes but the current process runs out of time and not yet finishes
-            // This new process will be enqueued before putting current process to the back of the queue
-            let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
-            if (availableProcesses.length === 0)
-            {
-                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
-                startTime = endTime;
-                endTime = nextProcess.ArrivalTime;
-                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
-                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
-            }
+        // let startTime = 0;
+        // let endTime = 0;
+        // let currentProcess: ProcessItem = firstProcess;
+        // while (copiedProcesses.length !== 0)
+        // {
+        //     // At the moment when a new process comes but the current process runs out of time and not yet finishes
+        //     // This new process will be enqueued before putting current process to the back of the queue
+        //     let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+        //     if (availableProcesses.length === 0)
+        //     {
+        //         let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+        //         startTime = endTime;
+        //         endTime = nextProcess.ArrivalTime;
+        //         timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+        //         availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+        //     }
 
-            currentProcess.BurstTime -= 1;
-            endTime += 1;
+        //     currentProcess.BurstTime -= 1;
+        //     endTime += 1;
 
-            for (let process of availableProcesses) {
-                processQueue.push(process);
-                this.removeProcessItemFromCollection(process, copiedProcesses);
-            }
+        //     for (let process of availableProcesses) {
+        //         processQueue.push(process);
+        //         this.removeProcessItemFromCollection(process, copiedProcesses);
+        //     }
 
-            if (currentProcess.BurstTime === 0) {
-                timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
-                startTime = endTime;
-                processQueue.shift();
+        //     if (currentProcess.BurstTime === 0) {
+        //         timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+        //         startTime = endTime;
+        //         processQueue.shift();
 
-                if (processQueue.length > 0) {
-                    currentProcess = processQueue[0];
-                }
-            } else {
-                let duration = endTime - startTime;
-                if (duration === quantum) {
-                    timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
-                    startTime = endTime;
+        //         if (processQueue.length > 0) {
+        //             currentProcess = processQueue[0];
+        //         }
+        //     } else {
+        //         let duration = endTime - startTime;
+        //         if (duration === quantum) {
+        //             timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+        //             startTime = endTime;
 
                     
 
-                    // Move to the back of queue
-                    let outOfTimeProcess = processQueue.shift();
-                    processQueue.push(outOfTimeProcess);
-                    currentProcess = processQueue[0];
-                }
-            }
-        }
+        //             // Move to the back of queue
+        //             let outOfTimeProcess = processQueue.shift();
+        //             processQueue.push(outOfTimeProcess);
+        //             currentProcess = processQueue[0];
+        //         }
+        //     }
+        // }
 
         return timeBlocks;
     }

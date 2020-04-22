@@ -1,12 +1,39 @@
-<div class="scroll-container">
-    <div>
-        <label>Pixel per second</label>
-        <input type="number" [(ngModel)]="pixelPerSecond">
+<div *ngIf="processTimeBlocks.length !== 0">
+    <div class="scroll-container">
+        <div>
+            <label>Pixel per second</label>
+            <input type="number" [(ngModel)]="pixelPerSecond">
+        </div>
+        <app-process-time-block 
+                *ngFor="let processTimeBlock of processTimeBlocks" 
+                [processTimeBlock]="processTimeBlock"
+                [pixelPerSecond]="pixelPerSecond">
+        </app-process-time-block>
     </div>
-    <app-process-time-block 
-            *ngFor="let processTimeBlock of processTimeBlocks" 
-            [processTimeBlock]="processTimeBlock"
-            [pixelPerSecond]="pixelPerSecond">
-    </app-process-time-block>
+    <div>Copy this Gantt chart</div>
+    <div class="scroll-container">
+        <table>
+            <thead>
+                <tr>
+                    <th *ngFor="let processTimeBlock of processTimeBlocks" [style.width.px]="processTimeBlock.Duration * pixelPerSecond">
+                        <div>{{processTimeBlock.Name}}</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td *ngFor="let processTimeBlock of processTimeBlocks" [style.width.px]="processTimeBlock.Duration * pixelPerSecond">
+                        <div>
+                            <div class="start-time-text" *ngIf="processTimeBlock.IsFirstBlock">
+                                {{processTimeBlock.StartTime}}
+                            </div>
+                            <div class="end-time-text">
+                                {{processTimeBlock.EndTime}}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
-
