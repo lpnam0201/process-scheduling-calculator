@@ -11,6 +11,8 @@ import { ProcessCalculationService } from './services/process-calculation-servic
 import { TimeBlockProviderService } from './services/time-block-provider-service';
 import { ProcessSchedulingResultComponent } from './process-scheduling-result/process-scheduling-result.component';
 import { ProcessSchedulingProviderService } from './services/process-scheduling-provider-service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { ProcessSchedulingProviderService } from './services/process-scheduling-
   imports: [
     FormsModule,
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    MatSliderModule
   ],
   providers: [
     ProcessCalculationService,

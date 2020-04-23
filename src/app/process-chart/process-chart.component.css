@@ -11,3 +11,9 @@ table {
 td, th {
     border: 1px solid black;
 }
+
+.slider {
+    height: 60px;
+    width: 300px;
+    margin-top: 17px;
+}

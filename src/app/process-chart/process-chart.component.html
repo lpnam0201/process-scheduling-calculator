@@ -2,7 +2,7 @@
     <div class="scroll-container">
         <div>
             <label>Pixel per second</label>
-            <input type="number" [(ngModel)]="pixelPerSecond">
+            <mat-slider [min]="0" [max]="100"  [step]="1" [thumbLabel]="true" [(ngModel)]="pixelPerSecond" class="slider"></mat-slider>
         </div>
         <app-process-time-block 
                 *ngFor="let processTimeBlock of processTimeBlocks" 
