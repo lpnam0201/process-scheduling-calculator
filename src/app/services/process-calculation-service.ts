@@ -144,7 +144,7 @@ export class ProcessCalculationService {
 
         let startTime = 0;
         let endTime = 0;
-        let firstProcess = copiedProcesses[0];
+        let firstProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
         processQueue.push(firstProcess);
         this.removeProcessItemFromCollection(firstProcess, copiedProcesses);
         while (copiedProcesses.length !== 0 || processQueue.length !== 0)
