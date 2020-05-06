@@ -16,7 +16,7 @@ export class ProcessInputComponent implements OnInit {
     return this.internalSelectedAlgorithm;
   }
   public set selectedAlgorithm(value: string) {
-    if (value === 'PS') {
+    if (value === 'PS' || value === 'PSP') {
       this.isPriorityUsed = true;
     } else {
       this.isPriorityUsed = false;
@@ -31,10 +31,11 @@ export class ProcessInputComponent implements OnInit {
 
     this.internalSelectedAlgorithm = value;
   }
-  algorithms: string[] = ['FCFS', 'SJF', 'SRTF', 'PS', 'RR'];
+  algorithms: string[] = ['FCFS', 'SJF', 'SRTF', 'PS', 'PSP', 'RR'];
   processItems: ProcessItem[] = [];
   isPriorityUsed: boolean = false;
   isRoundRobin: boolean = false;
+  isSmallNumberHighPriority = true;
   quantum: number;
 
   constructor(
@@ -80,7 +81,10 @@ export class ProcessInputComponent implements OnInit {
         timeBlocks = this.processCalculationService.calculateBySRTF(this.processItems);
         break;
       case 'PS':
-        timeBlocks = this.processCalculationService.calculateByPS(this.processItems);
+        timeBlocks = this.processCalculationService.calculateByPS(this.processItems, this.isSmallNumberHighPriority);
+        break;
+      case 'PSP':
+        timeBlocks = this.processCalculationService.calculateByPSPreemptive(this.processItems, this.isSmallNumberHighPriority);
         break;
       case 'RR':
         timeBlocks = this.processCalculationService.calculateByRR(this.processItems, this.quantum);

@@ -7,6 +7,10 @@
             <label>Quantum</label>
             <input type="number" [(ngModel)]="quantum">
         </div>
+        <div *ngIf="isPriorityUsed">
+            <input type="checkbox" [(ngModel)]="isSmallNumberHighPriority">
+            <label>Small number means high priority</label>
+        </div>
     </div>
     <div class="col-9">
         <table class="table-bordered">

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ProcessItem } from '../models/process-item';
 import { ProcessTimeBlock } from '../models/process-time-block';
-import { cloneDeep, min, findLast, orderBy, sortBy } from 'lodash';
+import { cloneDeep, min, findLast, orderBy, sortBy, max } from 'lodash';
 import { ProcessSchedulingItem } from '../models/process-scheduling-item';
 
 @Injectable()
@@ -76,6 +76,7 @@ export class ProcessCalculationService {
                 endTime = nextProcess.ArrivalTime;
                 timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
                 availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+                startTime = endTime;
             }
 
             let minRemainingTime = min(availableProcesses.map(x => x.BurstTime));
@@ -105,7 +106,7 @@ export class ProcessCalculationService {
         return timeBlocks;
     }
 
-    public calculateByPS(processes: ProcessItem[]): ProcessTimeBlock[] {
+    public calculateByPS(processes: ProcessItem[], isSmallNumberHighPriority: boolean): ProcessTimeBlock[] {
         const timeBlocks: ProcessTimeBlock[] = [];
         const copiedProcesses = cloneDeep(processes);
 
@@ -122,8 +123,8 @@ export class ProcessCalculationService {
                 availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
             }
 
-            // 1 highest - n lowest
-            let highestPriority = min(availableProcesses.map(x => x.Priority));
+            let priorityFunction = isSmallNumberHighPriority ? min : max;
+            let highestPriority = priorityFunction(availableProcesses.map(x => x.Priority));
 
             let process = copiedProcesses.find(x => x.Priority === highestPriority);
 
@@ -132,6 +133,53 @@ export class ProcessCalculationService {
 
             timeBlocks.push(new ProcessTimeBlock(process.Name, startTime, endTime));
             this.removeProcessItemFromCollection(process, copiedProcesses);
+        }
+
+        return timeBlocks;
+    }
+
+    public calculateByPSPreemptive(processes: ProcessItem[], isSmallNumberHighPriority: boolean): ProcessTimeBlock[] {
+        const timeBlocks: ProcessTimeBlock[] = [];
+        const copiedProcesses = cloneDeep(processes);
+
+        let startTime = 0;
+        let endTime = 0;
+        let currentProcess: ProcessItem = null;
+        while (copiedProcesses.length !== 0) {
+            let availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+            if (availableProcesses.length === 0)
+            {
+                let nextProcess = this.findProcessWithMinArrivalTime(copiedProcesses);
+                startTime = endTime;
+                endTime = nextProcess.ArrivalTime;
+                timeBlocks.push(new ProcessTimeBlock('-', startTime, endTime));
+                availableProcesses = this.filterAvailableProcesses(copiedProcesses, endTime);
+                startTime = endTime;
+            }
+
+            let priorityFunction = isSmallNumberHighPriority ? min : max;
+            let highestPriority = priorityFunction(availableProcesses.map(x => x.Priority));
+
+            let highestPriorityProcess = availableProcesses.find(x => x.Priority === highestPriority);
+            if (currentProcess === null) {
+                currentProcess = highestPriorityProcess;
+            } else if (currentProcess === highestPriorityProcess) {
+                // Not pre-empted yet
+                endTime += 1;
+                currentProcess.BurstTime -= 1;
+            } else {
+                // A higher priority process was found, current process is about to be pre-empted
+                timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+                currentProcess = highestPriorityProcess;
+                startTime = endTime;
+            }
+
+            if (currentProcess.BurstTime === 0) {
+                timeBlocks.push(new ProcessTimeBlock(currentProcess.Name, startTime, endTime));
+                this.removeProcessItemFromCollection(currentProcess, copiedProcesses);
+                currentProcess = null;
+                startTime = endTime;
+            }
         }
 
         return timeBlocks;

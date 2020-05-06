@@ -16,7 +16,7 @@
             <thead>
                 <tr>
                     <th *ngFor="let processTimeBlock of processTimeBlocks" [style.width.px]="processTimeBlock.Duration * pixelPerSecond">
-                        <div>{{processTimeBlock.Name}}</div>
+                        <div class="process-name-text">{{processTimeBlock.Name}}</div>
                     </th>
                 </tr>
             </thead>
